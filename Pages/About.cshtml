@@ -1,0 +1,31 @@
+@page
+@model ChopNShop.Pages.AboutModel
+
+@{
+    ViewData["Title"] = "Ingredient Statistics";
+}
+
+<h2>Ingredient Statistics</h2>
+
+<table>
+    <tr>
+        <th>
+            Entry Date
+        </th>
+        <th>
+            Ingredients
+        </th>
+    </tr>
+
+    @foreach (var item in Model.Ingredients)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EntryDate)
+            </td>
+            <td>
+                @item.IngredientCount
+            </td>
+        </tr>
+    }
+</table>
