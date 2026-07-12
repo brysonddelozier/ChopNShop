@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChopNShop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58efecb6e2968a37da743b3aa85ee7ecafae4cdf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eaa44be198d0948cd84f5562b60b049308c4f045")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChopNShop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChopNShop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
