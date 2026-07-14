@@ -10,40 +10,75 @@
     <h4>Recipe</h4>
     <hr />
     <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
     <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+            <div class="col-1 mb-3">
                 <label asp-for="Recipe.RecipeID" class="control-label"></label>
                 <input asp-for="Recipe.RecipeID" class="form-control" />
                 <span asp-validation-for="Recipe.RecipeID" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="col-6 mb-3">
                 <label asp-for="Recipe.Title" class="control-label">Recipe Name</label>
                 <input asp-for="Recipe.Title" class="form-control" />
                 <span asp-validation-for="Recipe.Title" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Recipe.Servings" class="control-label"></label>
-                <input asp-for="Recipe.Servings" class="form-control" />
-                <span asp-validation-for="Recipe.Servings" class="text-danger"></span>
+            <div class="row mb-3">
+                <div class="col-3">
+                    <label asp-for="Recipe.Servings" class="control-label"></label>
+                    <input asp-for="Recipe.Servings" class="form-control" />
+                    <span asp-validation-for="Recipe.Servings" class="text-danger"></span>
+                </div>
+                <div class="col-6">
+                    <label asp-for="PrepHours" class="control-label">Prep Time</label>
+                    <div class="input-group">
+                        <input asp-for="PrepHours" class="form-control" placeholder="Hours" />
+                        <span class="input-group-text">:</span>
+                        <input asp-for="PrepMinutes" class="form-control" placeholder="Minutes" />
+                    </div>
+                    <span asp-validation-for="PrepHours" class="text-danger"></span>
+                    <span asp-validation-for="PrepMinutes" class="text-danger"></span>
+                </div>
             </div>
+            <h4>Ingredients</h4>
             <div id="ingredient-list">
                 <div class="row ingredient-row mb-2 align-items-center">
                     <div class="col-2">
                         <input type="number" name="IngredientAmounts" class="form-control" placeholder="Amount" />
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <input type="text" name="IngredientUnits" class="form-control" placeholder="Unit (cup, lb...)" />
                     </div>
                     <div class="col-5">
                         <input type="text" name="IngredientNames" class="form-control" placeholder="Ingredient Name" />
                     </div>
+                    <div class="col-2">
+                    @* Removes just THIS row when clicked *@
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this, 'ingredient-row')">✕ Remove</button>
+                    </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary mt-2" id="add-ingredient" onclick="addIngredientRow()">+ Add Ingredient</button>
+            <button type="button" class="btn btn-secondary mt-2 mb-3" id="add-ingredient" onclick="addIngredientRow()">+ Add Ingredient</button>
+            <h4>Steps</h4>
+            <div id= "step-list">
+                @{
+                    //preserve on reload, otherwise start with one blank row
+                    int initialStepCount = Model.Steps.Any() ? Model.Steps.Count : 1;
+                }
+                @for (int i = 0; i < initialStepCount; i++)
+                {
+                    //Safely grab this row's previous value, falling back to "" if there isn't one yet
+                    string currentStep = i < Model.Steps.Count ? Model.Steps[i] : "";
+
+                    <div class="mb-2 step-row d-flex gap-2 align-items-center">
+                        <input type="text" name="Steps" value="@currentStep" class="form-control" placeholder="Step @(i + 1)" />
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this, 'step-row')">✕ Remove</button>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-secondary mt-2 mb-3" onclick="addStepRow()">+ Add Step</button>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary mt-3" />
             </div>
         </form>
     </div>
@@ -67,14 +102,50 @@
                 <div class="col-2">
                     <input type="number" name="IngredientAmounts" class="form-control qty-input" placeholder="Amount" inputmode="numeric" />
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <input type="text" name="IngredientUnits" class="form-control" placeholder="Unit (cup, lb...)" />
                 </div>
                 <div class="col-5">
                     <input type="text" name="IngredientNames" class="form-control ing-name-input" placeholder="Ingredient name" />
                 </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this, 'ingredient-row')">✕ Remove</button>
+                </div>
             `;
             list.appendChild(row);
     }
+
+    function addStepRow() {
+            const list = document.getElementById("step-list");
+            // Counts how many step rows currently exist so the new row's
+            // placeholder text can say "Step 2", "Step 3", etc. correctly.
+            const count = list.querySelectorAll(".step-row").length + 1;
+            const row = document.createElement("div");
+            row.className = "mb-2 step-row d-flex gap-2 align-items-center";
+            row.innerHTML = `
+                <input type="text" name="Steps" class="form-control" placeholder="Step ${count}" />
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this, 'step-row')">✕ Remove</button>
+            `;
+            list.appendChild(row);
+    }
+
+    function removeRow(button, rowClass) {
+            // .closest() walks UP from the clicked button through its parent
+            // elements until it finds the nearest one matching this class —
+            // i.e., "find the whole row this button belongs to."
+            const row = button.closest("." + rowClass);
+            const list = row.parentElement;
+
+            // If there's more than one row of this type, it's safe to fully
+            // remove this one. But if this is the LAST remaining row, we
+            // don't delete it entirely — instead we just clear its inputs.
+            // This keeps the "Ingredients"/"Steps" section from ever
+            // disappearing completely, which would look broken.
+            if (list.querySelectorAll("." + rowClass).length > 1) {
+                row.remove();
+            } else {
+                row.querySelectorAll("input").forEach(input => input.value = "");
+            }
+        }
     </script>
 }

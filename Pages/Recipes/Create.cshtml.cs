@@ -29,6 +29,15 @@ namespace ChopNShop.Pages.Recipes
         public Recipe Recipe { get; set; } = default!;
 
         [BindProperty]
+        public List<string> Steps { get; set; } = new();
+
+        [BindProperty]
+        public int? PrepHours { get; set; }
+
+        [BindProperty]
+        public int? PrepMinutes { get; set; }
+
+        [BindProperty]
         public List<string> IngredientNames { get; set; } = new();
 
         [BindProperty]
@@ -44,6 +53,12 @@ namespace ChopNShop.Pages.Recipes
             {
                 return Page();
             }
+
+            //Set the Steps property of the Recipe to the Steps list from the form
+            Recipe.Steps = Steps.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+            // Combine PrepHours and PrepMinutes into a single TimeSpan for the Recipe
+            Recipe.PrepTime = (PrepHours.HasValue || PrepMinutes.HasValue) ? TimeSpan.FromHours(PrepHours ?? 0) + TimeSpan.FromMinutes(PrepMinutes ?? 0) : null;
 
             // Save the Recipe first
             _context.Recipes.Add(Recipe);
